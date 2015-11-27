@@ -45,10 +45,7 @@ public class IndexTweets {
         TwitterUtils.createStream(sc, twitterAuth, filters)
                 .map(s -> new Tweet(s.getUser().getName(), s.getText(), s.getCreatedAt(), detectLanguage(s.getText()), findSentiment(s.getText())))
                 .map(t -> mapper.writeValueAsString(t))
-                .foreachRDD(tweets -> {
-                    // https://issues.apache.org/jira/browse/SPARK-4560
-                    // tweets.foreach(t -> System.out.println(t));
-
+                .foreachRDD(tweets -> {                  
                     tweets.collect().stream().forEach(t -> System.out.println(t));
                     JavaEsSpark.saveJsonToEs(tweets, "spark/tweets-sentiments");
                     return null;
